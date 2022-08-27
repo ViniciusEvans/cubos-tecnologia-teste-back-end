@@ -85,14 +85,41 @@ export class TransactionController {
         return res.status(404).json({ error: "conta não encontrada!" });
       }
 
-      const transactionData = await transactionRepository.findOneBy({
-        id: transactionId,
+      const transactionData = await transactionRepository.findOne({
+        where: { id: transactionId },
+        relations: { account: true },
       });
 
       if (!transactionData) {
         return res.status(404).json({ error: "transação não encontrada!" });
       }
+      if (transactionData.account.id !== accountData.id) {
+        return res
+          .status(404)
+          .json({ error: "A transação não pertence a essa conta!" });
+      }
+
+      if (transactionData.createdAt !== transactionData.updatedAt) {
+        return res.status(400).json({ error: "transação já revertida!" });
+      }
+      await accountRepository.update(accountId, {
+        balance: String(
+          (
+            Number(transactionData.value) * -1 +
+            Number(accountData.balance)
+          ).toFixed(2)
+        ),
+      });
+      const updatedTransaction = await transactionRepository.update(
+        transactionId,
+        {
+          description: "reventendo transação",
+          value: String((Number(transactionData.value) * -1).toFixed(2)),
+        }
+      );
+      return res.status(200).json(updatedTransaction);
     } catch (error) {
+      console.log(error);
       return res.status(500).json({ error: "internal server error!" });
     }
   }

@@ -16,7 +16,6 @@ import {
 import { createAccountSchema } from "./helpers/validators/createAccountSchema";
 import { createCardSchema } from "./helpers/validators/createCardSchema";
 import { createTransactionSchema } from "./helpers/validators/createTransactionSchema";
-import { revertTransactionSchema } from "./helpers/validators/revertTransactionSchema";
 
 export const rotas = express();
 
@@ -72,7 +71,6 @@ rotas.post(
   "/accounts/:accountId/transactions/:transactionId/revert",
   validateParams(accountIdSchema),
   validateParams(transactionIdSchema),
-  validateBody(revertTransactionSchema),
   new TransactionController().revertTransaction
 );
 
