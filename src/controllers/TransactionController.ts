@@ -14,7 +14,10 @@ export class TransactionController {
         return res.status(404).json({ error: "conta não encontrada!" });
       }
 
-      if (Number(value + Number(accountData.balance)) < 0) {
+      if (
+        Math.sign(value) === -1 &&
+        Number(value + Number(accountData.balance)) < 0
+      ) {
         return res.status(400).json({
           error: "não é possível realizar uma trasação maior que o saldo!",
         });
